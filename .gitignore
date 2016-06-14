@@ -2,3 +2,5 @@
 *.pyo
 dist/
 *.egg-info
+
+templates/node/dev/ttyS0
