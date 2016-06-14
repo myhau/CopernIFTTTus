@@ -5,6 +5,10 @@ import os
 from serial import Serial
 from time import time
 from telegraph import Telegraph
+import threading
+import thread
+from threading import Thread
+import mosquitto
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 SERIAL_PATH = os.path.join(BASE_DIR, 'dev', 'ttyS0')
@@ -48,28 +52,63 @@ def set_channel_num(resp):
     chn_num = get_channel_num(knob_pos)
     tel.set_channel(chn_num)
 
-tel = Telegraph(serial)
+
+#-------  mqtt functions --------
+
+def on_connect(mqttc, obj, rc):
+    print("rc: "+str(rc))
+
+def on_message(mqttc, obj, msg):
+    print(msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
+    ser.write(chr(int(msg.payload)/2))
+
+def on_publish(mqttc, obj, mid):
+    print("mid: "+str(mid))
+
+def on_subscribe(mqttc, obj, mid, granted_qos):
+    print("Subscribed: "+str(mid)+" "+str(granted_qos))
+
+def on_log(mqttc, obj, level, string):
+    print(string)
+
+#------------ mqtt init ----------
+
+mqttc = mosquitto.Mosquitto() 
+mqttc.on_connect = on_connect
+mqttc.on_publish = on_publish
+mqttc.on_subscribe = on_subscribe
+
+mqttc.connect("127.0.0.1", 1883, 60)
+
+#---------------------------------
+
+def on_impulse_rcv(impulse):
+    set_led1(impulse)
+
+tel = Telegraph(serial, mqttc, on_impulse_rcv)
 serial.write(chr(128+32+16+8+4+1))
 
-while True:
-    cc = serial.read(1)
-    if len(cc)>0:
-            resp = ord(cc)
-            #print resp
-            if is_state_of_button(resp, 1):
-                btn_state = button_pressed(resp, 1)
-                if btn_state:
-                    tel.button_press()
-                else:
-                    impulse = tel.button_release()
-                    set_led1(impulse)
-            elif is_state_of_button(resp, 2):
-                if button_pressed(resp, 2):
-                    mode = tel.change_knob_mode()
-                    set_led2(mode)
+def main():
+    while True:
+        cc = serial.read(1)
+        if len(cc)>0:
+                resp = ord(cc)
+                #print resp
+                if is_state_of_button(resp, 1):
+                    btn_state = button_pressed(resp, 1)
+                    if btn_state:
+                        tel.button_press()
+                    else:
+                        impulse = tel.button_release()
+                        set_led1(impulse)
+                elif is_state_of_button(resp, 2):
+                    if button_pressed(resp, 2):
+                        mode = tel.change_knob_mode()
+                        set_led2(mode)
 
-            elif is_knob_position(resp):
-                set_channel_num(resp)
+                elif is_knob_position(resp):
+                    set_channel_num(resp)
 
+thread.start_new_thread(main,())
 
-                
+mqttc.loop_forever()
