@@ -52,14 +52,14 @@ class Telegraph:
         return 'channel/' + str(self.snd_channel)        
 
     def set_rcv_channel(self, num):
-        if num != self.rcv_channel: return
+        if num == self.rcv_channel: return
         print 'receive channel changed to ' + str(num)
         self.mqttc.unsubscribe(self.rcv_channel_name())
         self.rcv_channel = num
         self.mqttc.subscribe(self.rcv_channel_name(), 0)
 
     def set_snd_channel(self, num):
-        if num != self.snd_channel: return
+        if num == self.snd_channel: return
         print 'send channel changed to ' + str(num)
         self.snd_channel = num
 
