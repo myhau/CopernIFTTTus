@@ -13,7 +13,7 @@ import mosquitto
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 SERIAL_PATH = os.path.join(BASE_DIR, 'dev', 'ttyS0')
 
-serial = Serial(SERIAL_PATH, 38400)
+serial = Serial(SERIAL_PATH, 38400, rtscts=True,dsrdtr=True)
 # ----- END INITIALIZATION -----
 
 def ser_write(num):
@@ -73,12 +73,18 @@ def on_log(mqttc, obj, level, string):
 
 #------------ mqtt init ----------
 
+print 'mqtt init'
+
 mqttc = mosquitto.Mosquitto() 
 mqttc.on_connect = on_connect
 mqttc.on_publish = on_publish
 mqttc.on_subscribe = on_subscribe
 
-mqttc.connect("127.0.0.1", 1883, 60)
+print 'mqtt connecting...'
+
+mqttc.connect("iot.eclipse.org", 1883, 5)
+
+print 'mqtt connected'
 
 #---------------------------------
 
@@ -109,6 +115,8 @@ def main():
                 elif is_knob_position(resp):
                     set_channel_num(resp)
 
+print 'strting thread for main'
 thread.start_new_thread(main,())
 
+print 'entering mqtt loop'
 mqttc.loop_forever()

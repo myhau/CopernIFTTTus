@@ -7,14 +7,14 @@ class Telegraph:
         self.serial = serial
         self.mqttc = mqttc
         self.on_recv_msg = on_recv_msg
-        mqttc.on_message = on_message
+        mqttc.on_message = self.on_message
         self.rcv_channel = 0
         self.snd_channel = 0
         mqttc.subscribe(self.rcv_channel_name(), 0)
         self.last_press_time = 0
         self.knob_mode = 1           # 1 - receiving channel, 2 - sending channel
 
-    def on_message(mqttc, obj, msg):
+    def on_message(self, mqttc, obj, msg):
         print 'received message from topic ' + msg.topic
         if msg.topic != self.rcv_channel_name: return
         self.on_recv_msg(msg.payload)
@@ -45,10 +45,10 @@ class Telegraph:
     def snd_channel_mode(self):
         return self.knob_mode==2
 
-    def rcv_channel_name():
+    def rcv_channel_name(self):
         return 'channel/' + str(self.rcv_channel)
 
-    def snd_channel_name():
+    def snd_channel_name(self):
         return 'channel/' + str(self.snd_channel)        
 
     def set_rcv_channel(self, num):
