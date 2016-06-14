@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>{{ device }} | vCopernicus</title>
+<script src="/static/js/jquery-1.11.1.min.js"></script>
+<script src="/static/js/gauge.min.js"></script>
+<script src="/static/js/jquery.knob.min.js"></script>
+<script>var device = '{{ device }}';</script>
+<script src="/static/js/vcopernicus.js"></script>
+<link rel="stylesheet" href="/static/css/vcopernicus.css">
+</head>
+<body>
+<div class="copernicus-blank">
+<div class="copernicus-scenario">
+<div class="copernicus">
+<div class="dashboard"><canvas width="320" height="160" id="dashboard"></canvas></div>
+<div class="knob"><input type="text" value="0" data-cursor="true" data-angleOffset="-150" data-angleArc="300" data-displayInput="false" data-width="40" data-bgColor="#000000" data-fgColor="#c0c0c0" data-thickness="0.75"></div>
+<div class="button1"><input type="button"></div>
+<div class="button2"><input type="button"></div>
+<div class="light"><div></div></div>
+<div class="led1"><div></div></div>
+<div class="led2"><div></div></div>
+</div>
+</div>
+</div>
+<div class="scenario"><strong>Scenario:</strong> <input type="file"></div>
+</body>
+</html>
