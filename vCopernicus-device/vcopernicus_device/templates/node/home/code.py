@@ -60,7 +60,7 @@ def on_connect(mqttc, obj, rc):
 
 def on_message(mqttc, obj, msg):
     print(msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
-    ser.write(chr(int(msg.payload)/2))
+    serial.write(chr(int(msg.payload)/2))
 
 def on_publish(mqttc, obj, mid):
     print("mid: "+str(mid))
