@@ -46,11 +46,11 @@ def button_pressed(resp, btn_num):
 def get_knob_pos(resp):
     return resp - 64
 
-def set_channel_num(resp):
-    global tel
-    knob_pos = get_knob_pos(resp)
-    chn_num = get_channel_num(knob_pos)
-    tel.set_channel(chn_num)
+#def set_channel_num(resp):
+#    global tel
+#    knob_pos = get_knob_pos(resp)
+#    chn_num = get_channel_num(knob_pos)
+#    tel.set_channel(chn_num)
 
 
 #-------  mqtt functions --------
@@ -94,6 +94,11 @@ def on_impulse_rcv(impulse):
 tel = Telegraph(serial, mqttc, on_impulse_rcv)
 serial.write(chr(128+32+16+8+4+1))
 
+tel.set_action(1,0,'a')
+tel.set_action(2,1,'b')
+tel.set_action(3,2,'c')
+tel.set_action(4,3,'d')
+
 def main():
     while True:
         cc = serial.read(1)
@@ -107,13 +112,6 @@ def main():
                     else:
                         impulse = tel.button_release()
                         set_led1(impulse)
-                elif is_state_of_button(resp, 2):
-                    if button_pressed(resp, 2):
-                        mode = tel.change_knob_mode()
-                        set_led2(mode)
-
-                elif is_knob_position(resp):
-                    set_channel_num(resp)
 
 print 'strting thread for main'
 thread.start_new_thread(main,())
