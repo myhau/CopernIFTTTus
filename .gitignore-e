@@ -2,3 +2,11 @@
 *.pyo
 dist/
 *.egg-info
+
+templates/node/dev/ttyS0
+
+node_modules
+.tmp
+.idea
+dist
+.publish
