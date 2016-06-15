@@ -25,6 +25,9 @@ def set_led1(state):
 def set_led2(knob_mode):       # black for 1, red for 2
     ser_write(64+48*(knob_mode-1))
 
+def show_channel_on_dashboard(num):
+    ser_write(num*8)
+
 def get_channel_num(knob_pos):
     return knob_pos / 16
 
@@ -94,11 +97,6 @@ def on_impulse_rcv(impulse):
 tel = Telegraph(serial, mqttc, on_impulse_rcv)
 serial.write(chr(128+32+16+8+4+1))
 
-tel.set_action(1,0,'a')
-tel.set_action(2,1,'b')
-tel.set_action(3,2,'c')
-tel.set_action(4,3,'d')
-
 def main():
     while True:
         cc = serial.read(1)
@@ -112,6 +110,10 @@ def main():
                     else:
                         impulse = tel.button_release()
                         set_led1(impulse)
+                elif is_state_of_button(resp, 2):
+                    if button_pressed(resp, 2):
+                        num = tel.next_channel()
+                        show_channel_on_dashboard(num)
 
 print 'strting thread for main'
 thread.start_new_thread(main,())
