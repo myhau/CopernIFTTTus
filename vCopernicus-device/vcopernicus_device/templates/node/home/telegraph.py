@@ -22,15 +22,15 @@ class Telegraph:
             print 'payload: ' + msg.payload
             body = json.loads(msg.payload)
             self.actions = [{},{},{},{}]
-            print 'body: ' + str(body)
             for item in body:
-                print 'item: ' + str(item)
-                self.set_action(item.click, item.channel, {event: item.eventName, data: item.customData})
+                self.set_action(item[u'click'], item[u'channel']-1, {'event': item[u'eventName'], 'data': item[u'customData']})
 
     def perform_action(self, action):
         print 'performing action ...'
-        json_body = json.dumps({value1: action.data})
-        url = 'https://maker.ifttt.com/trigger/{}/with/key/csRTnetSY5pXMaaQLxHMJD'.format(action.event)
+        json_body = json.dumps({'value1': action['data']})
+        print 'body: ' + json_body
+        url = 'https://maker.ifttt.com/trigger/{}/with/key/csRTnetSY5pXMaaQLxHMJD'.format(action['event'])
+        print 'url: ' + url
         r = requests.post(url, json=json_body)
 
     def set_action(self, click_num, channel, action):
