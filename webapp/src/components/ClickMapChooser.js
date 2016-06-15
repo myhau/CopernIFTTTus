@@ -178,7 +178,7 @@ export default class ClickMapChooser extends React.Component {
     if(this.lastTimeout != null)
       clearInterval(this.lastTimeout)
 
-    this.lastTimeout = setInterval(postConfigFun, 2 * 1000)
+    this.lastTimeout = setInterval(postConfigFun, 6 * 1000)
 
     postConfigFun()
 
@@ -202,7 +202,7 @@ export default class ClickMapChooser extends React.Component {
         <div style={{width: "210px", margin:"auto"}}>
           <input
               style={{float:"left", width:"200px", margin: "auto", fontSize: fontSize, marginTop: "50px", marginBottom: "20px"}}
-            value="Send" type="button" className="Select-control"
+            value="Set" type="button" className="Select-control"
             onClick={() => this.submit()}/>
 
           {(() => {
