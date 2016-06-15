@@ -1,5 +1,6 @@
 import React from 'react';
 import Select from 'react-select';
+import 'whatwg-fetch'
 
 let clickOptions = [
   {value: 1, label: "Single click"},
@@ -73,12 +74,21 @@ class OneChooser extends React.Component {
           onChange={vl => this.customDataChange(vl)}
         />
         {(() => {
+          if (this.props.showRemove) {
+            return <input style={{float:"left", width:"100px", marginRight: margin, fontSize: fontSize}}
+                          value="Remove" type="button" className="Select-control"
+                          onClick={this.props.onRemove}/>
+          }
+        })()}
+        {(() => {
           if (this.props.showAdd) {
             return <input style={{float:"left", width:"100px", marginRight: margin, fontSize: fontSize}}
                           value="Add..." type="button" className="Select-control"
-                          onClick={() => this.props.onAddNew()}/>
+                          onClick={this.props.onAddNew}/>
           }
         })()}
+
+
       </div>
     )
   }
@@ -87,14 +97,17 @@ class OneChooser extends React.Component {
 OneChooser.propTypes = {
   what: React.PropTypes.object,
   showAdd: React.PropTypes.bool,
+  showRemove: React.PropTypes.bool,
   onChange: React.PropTypes.func,
-  onAddNew: React.PropTypes.func
+  onAddNew: React.PropTypes.func,
+  onRemove: React.PropTypes.func
 };
 
-class ClickMapChooser extends React.Component {
+export default class ClickMapChooser extends React.Component {
 
   constructor(props) {
     super(props);
+    this.lastTimeout = null;
     this.state = {
       bindings: [{click: 1, channel: 1, eventName: undefined, customData: undefined}],
       valid: true,
@@ -103,11 +116,20 @@ class ClickMapChooser extends React.Component {
     this.state.valid = this.isStateValid(this.state)
   }
 
-  isStateValid = (st) => (
-    st.bindings.map((obj) => {
+  isStateValid = (st) => {
+    let validNotEmpty = st.bindings.map((obj) => {
       return Object.keys(obj).map(k => obj[k]).every(x => x != null && x != undefined && x !== "")
     }).every(x => x)
-  )
+
+    let validNotDuplicate = st.bindings.map((obj) => obj.click + "|" + obj.channel)
+    for(let i = 0; validNotDuplicate.length > i; i++) {
+      for(let j = i + 1; validNotDuplicate.length > j; j++) {
+        if(validNotDuplicate[i] == validNotDuplicate[j]) return false;
+      }
+    }
+    return validNotEmpty
+  }
+
 
   onChangeOne = (i, val) => {
     let newState = Object.assign({}, this.state);
@@ -124,6 +146,13 @@ class ClickMapChooser extends React.Component {
     this.setState(newState);
   }
 
+  removeOne = (i) => {
+    let newState = Object.assign({}, this.state);
+    newState.bindings.splice(i, 1);
+    newState.valid = this.isStateValid(newState)
+    this.setState(newState);
+  }
+
   submit = () => {
     if (!this.state.valid) return
     this.setState(Object.assign({}, this.state, {sent: true, valid: true}));
@@ -131,9 +160,31 @@ class ClickMapChooser extends React.Component {
     let request = {
       bindings: this.state.bindings,
       key: "{{key}}"
-    }
+    };
+
+    let postConfigFun = () => {
+      console.log("trying to resend");
+      fetch('http://localhost:8091/api/config', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(
+          request
+        )
+      }).then(() => console.log("sent"), (err) => console.log("err" + err));
+    };
+
+    if(this.lastTimeout != null)
+      clearTimeout(this.lastTimeout)
+
+    this.lastTimeout = setTimeout(postConfigFun, 10 * 1000)
+
+    postConfigFun()
+
     console.log("Submitted data " + request)
-  }
+  };
 
   render() {
     console.log(this.state)
@@ -142,11 +193,11 @@ class ClickMapChooser extends React.Component {
     let widthEach = "140px";
     let fontSize = "16px"
     return (
-      <div style={{marginLeft: "auto", marginRight:"auto", width:"800px"}}>
+      <div style={{marginLeft: "auto", marginRight:"auto", width:"850px", marginTop: "30px"}}>
         {this.state.bindings.map((binding, i) => (
           <div key={i} style={{clear:"both"}}>
-            <OneChooser onAddNew={this.addNew} onChange={val => this.onChangeOne(i, val)}
-                        showAdd={i == all - 1} what={binding}/>
+            <OneChooser onAddNew={this.addNew} onRemove={() => this.removeOne(i)} onChange={val => this.onChangeOne(i, val)}
+                        showRemove={all > 1} showAdd={i == all - 1} what={binding}/>
           </div>
         ))}
         <div style={{width: "210px", margin:"auto"}}>
