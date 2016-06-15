@@ -1,3 +1,0 @@
-include MANIFEST.in
-recursive-include vcopernicus_device/templates *
-recursive-exclude * *.py[co]
