@@ -25,6 +25,9 @@ def set_led1(state):
 def set_led2(knob_mode):       # black for 1, red for 2
     ser_write(64+48*(knob_mode-1))
 
+def show_channel_on_dashboard(num):
+    ser_write(num*8)
+
 def get_channel_num(knob_pos):
     return knob_pos / 16
 
@@ -46,11 +49,11 @@ def button_pressed(resp, btn_num):
 def get_knob_pos(resp):
     return resp - 64
 
-def set_channel_num(resp):
-    global tel
-    knob_pos = get_knob_pos(resp)
-    chn_num = get_channel_num(knob_pos)
-    tel.set_channel(chn_num)
+#def set_channel_num(resp):
+#    global tel
+#    knob_pos = get_knob_pos(resp)
+#    chn_num = get_channel_num(knob_pos)
+#    tel.set_channel(chn_num)
 
 
 #-------  mqtt functions --------
@@ -109,11 +112,8 @@ def main():
                         set_led1(impulse)
                 elif is_state_of_button(resp, 2):
                     if button_pressed(resp, 2):
-                        mode = tel.change_knob_mode()
-                        set_led2(mode)
-
-                elif is_knob_position(resp):
-                    set_channel_num(resp)
+                        num = tel.next_channel()
+                        show_channel_on_dashboard(num)
 
 print 'strting thread for main'
 thread.start_new_thread(main,())
