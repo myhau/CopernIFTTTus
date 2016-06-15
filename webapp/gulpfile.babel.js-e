@@ -73,8 +73,14 @@ gulp.task('watchify', () => {
   }
 
   bundler.transform(babelify, babl)
-  .on('update', rebundle);
+    .on('update', rebundle);
   return rebundle();
+});
+
+gulp.task('runify', () => {
+  const bundler = browserify(opts);
+
+  return bundler.transform(babelify, babl)
 });
 
 gulp.task('browserify', () => {
@@ -133,6 +139,9 @@ gulp.task('deploy', () => {
 
 gulp.task('watch', cb => {
   runSequence('clean', ['browserSync', 'watchTask', 'watchify', 'styles', 'images'], cb);
+});
+gulp.task('run', cb => {
+  runSequence('clean', ['browserSync', 'runify', 'styles', 'images'], cb);
 });
 
 gulp.task('build', cb => {

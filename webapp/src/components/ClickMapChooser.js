@@ -161,6 +161,7 @@ export default class ClickMapChooser extends React.Component {
       bindings: this.state.bindings,
       key: "{{key}}"
     };
+    let reqStr = JSON.stringify(request);
 
     let postConfigFun = () => {
       console.log("trying to resend");
@@ -170,16 +171,14 @@ export default class ClickMapChooser extends React.Component {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(
-          request
-        )
+        body: reqStr
       }).then(() => console.log("sent"), (err) => console.log("err" + err));
     };
 
     if(this.lastTimeout != null)
-      clearTimeout(this.lastTimeout)
+      clearInterval(this.lastTimeout)
 
-    this.lastTimeout = setTimeout(postConfigFun, 10 * 1000)
+    this.lastTimeout = setInterval(postConfigFun, 2 * 1000)
 
     postConfigFun()
 
