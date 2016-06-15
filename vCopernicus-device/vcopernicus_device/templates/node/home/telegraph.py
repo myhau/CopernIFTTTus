@@ -73,4 +73,6 @@ class Telegraph:
         self.knob_mode = self.knob_mode%2 + 1
         print 'knob mode changed to ' + str(self.knob_mode)
         return self.knob_mode
-        
+
+
+{"ev"}
