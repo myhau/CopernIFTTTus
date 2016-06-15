@@ -27,11 +27,12 @@ class Telegraph:
 
     def perform_action(self, action):
         print 'performing action ...'
-        json_body = json.dumps({'value1': action['data']})
-        print 'body: ' + json_body
+        json_body = {'value1': action['data']}
+        print 'body: ' + str(json_body)
         url = 'https://maker.ifttt.com/trigger/{}/with/key/{{key}}'.format(action['event'])
         print 'url: ' + url
         r = requests.post(url, json=json_body)
+        print 'response: ' + str(r.status_code)
 
     def set_action(self, click_num, channel, action):
         self.actions[channel][click_num] = action
