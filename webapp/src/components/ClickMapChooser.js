@@ -24,12 +24,12 @@ class OneChooser extends React.Component {
   }
 
   clickChange = val => {
-    let newState = Object.assign({}, this.props.what, {click: val})
+    let newState = Object.assign({}, this.props.what, {click: val.value})
     this.props.onChange(newState)
   }
 
   channelChange = val => {
-    let newState = Object.assign({}, this.props.what, {channel: val})
+    let newState = Object.assign({}, this.props.what, {channel: val.value})
     this.props.onChange(newState)
   }
 
